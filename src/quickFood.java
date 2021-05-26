@@ -36,6 +36,8 @@ public class quickFood {
 
         //form to order. gets price and item name for each order
         ArrayList<String> orderList = orderForm();
+        String specialInstructions = instructions();
+
         String order = duplicates(orderList);
 
         //calculates the total added from all the orders
@@ -53,7 +55,7 @@ public class quickFood {
         System.out.println(yourDriver);
 
         //relevant values passed into Invoice method, which goes to write method (.txt file)
-        Invoice(customer, restaurant, order, yourDriver, orderNumber, total);
+        Invoice(customer, restaurant, specialInstructions, order, yourDriver, orderNumber, total);
 
         //creating a string of customer name+order# and sent to be ordered and appended
 
@@ -111,14 +113,19 @@ public class quickFood {
         JPanel myPanel = new JPanel();
         myPanel.add(new JLabel("Name:"));
         myPanel.add(nameText);
+
         myPanel.add(new JLabel("Email"));
         myPanel.add(emailText);
+
         myPanel.add(new JLabel("Cell:"));
         myPanel.add(phNumberText);
+
         myPanel.add(new JLabel("Street Address"));
         myPanel.add(streetText);
+
         myPanel.add(new JLabel("Suburb"));
         myPanel.add(suburbText);
+
         myPanel.add(new JLabel("City"));
         myPanel.add(cityText);
 
@@ -210,64 +217,51 @@ public class quickFood {
 
     //method to obtain restaurant information and GUI
     public static Restaurant takeaways(String customerLocation) {     //customer location passed in to trigger error if not equal to restaurant location
-        //creating text fields
-        JTextField nameText = new JTextField(15);
-        JTextField locationText = new JTextField(15);
-        JTextField numberText = new JTextField(15);
-        JTextField instructionsText = new JTextField(15);
+
+        //initialising restaurant to empty
+        Restaurant restaurant = new Restaurant("", "", "");
+
+        Object[] options = {"Billies Burgers", "Wok This Hay", "Pete's Pizzas"};
+        int whichRestaurant = JOptionPane.showOptionDialog(null, "Which restaurant would you like to order from?", "Restaurants",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+                options, options[0]);
 
 
-        //Text fields added below to the panel
-        JPanel myPanel = new JPanel();
-        myPanel.add(new JLabel("Restaurant Name:"));
-        myPanel.add(nameText);
-        myPanel.add(new JLabel("City"));
-        myPanel.add(locationText);
-        myPanel.add(new JLabel("Phone:"));
-        myPanel.add(numberText);
-        myPanel.add(new JLabel("Special Instructions"));
-        myPanel.add(instructionsText);
-
-
-        //displays the panel with ok/cancel option, if click cancel then to cancel() method; (system.exit)
-        int result = JOptionPane.showConfirmDialog(null, myPanel,
-                "Restaurant Information", JOptionPane.OK_CANCEL_OPTION);
-        cancel(result);
-
-        //storing text fields into more readable variables
-        String name = nameText.getText();
-        String city = locationText.getText();
-        String number = numberText.getText();
-        String instructions = instructionsText.getText();
-        //creating the restaurant object from the text field value variables
-        Restaurant restaurant = new Restaurant(name, city, number, instructions);
-
-
-        //checking to see if information is empty, if it is then send to error function+exit(try again)
-        //not sure if this is a good practice (and on single line), but looks neater IMO
-        //instructions are not compulsory, so no check for that
-        if (name.equals("")) {
-            notComplete();
-        }
-        if (city.equals("")) {
-            notComplete();
-        }
-        if (number.equals("")) {
-            notComplete();
+        //switch statement for getting values from the restaurant selected from above
+        //values retrieved from restaurant methods
+        switch (whichRestaurant) {
+            case 0:
+                restaurant = Billies(customerLocation);
+                break;
+            case 1:
+                restaurant = Wok(customerLocation);
+                break;
+            case 2:
+                restaurant = Pete(customerLocation);
+                break;
         }
 
-
-        //if the location of the customer and the location of the restaurant do not match. then system.exit
-        //ignoring the case for each
-        if (!restaurant.city.equalsIgnoreCase(customerLocation)) {
-            JOptionPane.showMessageDialog(null, "The restaurant you you've ordered from is not in your city");
-            System.exit(0);
-        }
-
-        //returns value of restaurant object (class info found restaurant.java file)
         return restaurant;
     }
 
+
+
+    //customer location is shared for location of restaurant
+    //driver operation area still needs to align with customer location
+    public static Restaurant Billies(String customerLocation) {
+        Restaurant billies = new Restaurant("Billies Burgers", customerLocation, "666-1324");
+        return billies;
+    }
+
+    public static Restaurant Wok(String customerLocation) {
+        Restaurant wok = new Restaurant("Wok This Hay", customerLocation, "555-4325");
+        return wok;
+    }
+
+    public static Restaurant Pete(String customerLocation) {
+        Restaurant pete = new Restaurant("Pete's Pizzas", customerLocation, "777-8279");
+        return pete;
+    }
 
 
 
@@ -287,6 +281,8 @@ public class quickFood {
         myPanel.add(Box.createHorizontalStrut(15)); // a spacer
         myPanel.add(new JLabel("Cost"));
         myPanel.add(priceText);
+
+
 
         int next = 0;
         //loop to continue ordering, continue to checkout or cancel
@@ -326,6 +322,26 @@ public class quickFood {
             }
         }
         return orderList;
+    }
+
+
+
+    public static String instructions() {
+
+        JTextField specialInstructions = new JTextField(20);
+
+        //labels for the form
+        JPanel myPanel = new JPanel();
+        myPanel.add(new JLabel("Special Instructions:"));
+        myPanel.add(specialInstructions);
+
+        int result = JOptionPane.showConfirmDialog(null, myPanel,
+        "Food Preparation Preferences", JOptionPane.OK_CANCEL_OPTION);
+
+        //store the instructions in this variable to be returned
+        String instructions = specialInstructions.getText();
+
+        return instructions;
     }
 
 
@@ -461,14 +477,14 @@ public class quickFood {
 
 
     //creating invoice as a string to be printed to specific invoice file
-    public static void Invoice(Customer customer, Restaurant restaurant, String order, Driver yourDriver, int orderNumber, double total) throws FileNotFoundException {
+    public static void Invoice(Customer customer, Restaurant restaurant, String specialInstructions, String order, Driver yourDriver, int orderNumber, double total) throws FileNotFoundException {
         //making a variable for line spacing n = newline
         String n = "\n";
         //populating all the strings
         String customerDetails = customer.toString() + n + n;
         String from = "Your order is from: " + restaurant.name.toUpperCase() + " (" + restaurant.city.toUpperCase() + ")" + n + n;
         String totalString = Double.toString(total);
-        String instructions = "Special instructions: " + restaurant.specialInstructions + n + n;
+        String instructions = "Special instructions: " + specialInstructions + n + n;
         String stringTotal = n + "Total: R";
         String deliver = n + "Your driver " + yourDriver.name + " is on their way to deliver your food to your address:" + n;
         String customerAddress = n + customer.street + n + customer.suburb + n + customer.city + n;
