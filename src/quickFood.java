@@ -35,7 +35,8 @@ public class quickFood {
         Driver yourDriver = findDriver(driverInfo, customerLocation);
 
         //form to order. gets price and item name for each order
-        ArrayList<String> orderList = orderForm();
+        //passing restaurant information into the orderForm method to dictate menu
+        ArrayList<String> orderList = orderForm(restaurant);
         String specialInstructions = instructions();
 
         String order = duplicates(orderList);
@@ -149,23 +150,26 @@ public class quickFood {
         Customer customer = new Customer(orderNUmber, name, email, number, street, suburb, city);
 
         //checking to see if information is empty, if it is then send to error function+exit(try again)
+        //msg to be sent to the method - used in other areas also
+        String msg = " Please make sure full information is given and try again ";
+
         if (name.equals("")) {
-            notComplete();
+            notComplete(msg);
         }
         if (email.equals("")) {
-            notComplete();
+            notComplete(msg);
         }
         if (number.equals("")) {
-            notComplete();
+            notComplete(msg);
         }
         if (street.equals("")) {
-            notComplete();
+            notComplete(msg);
         }
         if (suburb.equals("")) {
-            notComplete();
+            notComplete(msg);
         }
         if (city.equals("")) {
-            notComplete();
+            notComplete(msg);
         }
 
         return customer;
@@ -231,13 +235,13 @@ public class quickFood {
         //values retrieved from restaurant methods
         switch (whichRestaurant) {
             case 0:
-                restaurant = Billies(customerLocation);
+                restaurant = billies(customerLocation);
                 break;
             case 1:
-                restaurant = Wok(customerLocation);
+                restaurant = wok(customerLocation);
                 break;
             case 2:
-                restaurant = Pete(customerLocation);
+                restaurant = pete(customerLocation);
                 break;
         }
 
@@ -248,39 +252,121 @@ public class quickFood {
 
     //customer location is shared for location of restaurant
     //driver operation area still needs to align with customer location
-    public static Restaurant Billies(String customerLocation) {
+    //menus are below method for restaurant
+    public static Restaurant billies(String customerLocation) {
         Restaurant billies = new Restaurant("Billies Burgers", customerLocation, "666-1324");
         return billies;
     }
 
-    public static Restaurant Wok(String customerLocation) {
+    public static ArrayList billiesMenu() {
+
+        //create hashmap and populate with the menu
+        ArrayList<String> menu = new ArrayList<>();
+        menu.add(0, "Beef Burger @ R99");
+        menu.add(1, "Hawaiian Burger @ R 109");
+        menu.add(2, "Bacon Avo Feta Burger @ R129");
+        menu.add(3, "Tikka Chicken Burger @ R109");
+        menu.add(4, "Cheddar Cheese Melt @ R109");
+        menu.add(5,"Deep Fried Chicken Burger @ R109");
+        menu.add(6,"Chips @ R35");
+        menu.add(7, "Coke @ R22");
+        menu.add(8, "Fresh Juice @ R30");
+        menu.add(9, "Beer @ R30");
+
+        return menu;
+    }
+
+
+
+
+
+    public static Restaurant wok(String customerLocation) {
         Restaurant wok = new Restaurant("Wok This Hay", customerLocation, "555-4325");
         return wok;
     }
 
-    public static Restaurant Pete(String customerLocation) {
+    public static ArrayList wokMenu() {
+
+        //create hashmap and populate with the menu
+        ArrayList<String> menu = new ArrayList<>();
+        menu.add(0,"Phad Thai @ R105");
+        menu.add(1,"Sweet & Sour Beef @ R115");
+        menu.add(2,"Sweet & Sour Pork @ R129");
+        menu.add(3,"Thai Green Curry @ R109");
+        menu.add(4,"Crispy Duck @ R140");
+        menu.add(5,"Egg Fried Rice @ R25");
+        menu.add(6,"Noodles @ R25");
+        menu.add(7,"Soda @ R20");
+        menu.add(8,"Iced Tea @ R28");
+        menu.add(9,"Cider @ R27");
+
+        return menu;
+    }
+
+
+
+    public static Restaurant pete(String customerLocation) {
         Restaurant pete = new Restaurant("Pete's Pizzas", customerLocation, "777-8279");
         return pete;
+    }
+
+    public static ArrayList peteMenu() {
+
+        //create an ArrayList and populate with the menu
+        ArrayList<String> menu = new ArrayList<>();
+        menu.add(0, "Margarita Pizza @ R95");
+        menu.add(1, "Hawaiian Pizza @ R120");
+        menu.add(2, "Mushroom & Ham Pizza @ R129");
+        menu.add(3, "Smog Pizza @ R129");
+        menu.add(4, "Four Meat Pizza @ R145");
+        menu.add(5, "Bacon Avo Feta @ R130");
+        menu.add(6, "Seafood Pizza @ R165");
+        menu.add(7, "Coke @ R25");
+        menu.add(8, "Wine @ R146");
+        menu.add(9, "Beer @ R32");
+
+
+        return menu;
     }
 
 
 
 
     //method for ordering items and returning array of items ordered + cost
-    public static ArrayList orderForm() {
+    public static ArrayList orderForm(Restaurant restaurant) {
         ArrayList<String> orderList = new ArrayList<>();
+        ArrayList<String> menu = new ArrayList<>();
+
+        switch(restaurant.name) {
+            case "Billies Burgers":
+                menu = billiesMenu();
+                break;
+            case "Wok This Hay":
+                menu = wokMenu();
+                break;
+            case "Pete's Pizzas":
+                menu = peteMenu();
+                break;
+        }
+
+        String menuScreen = "";
+
+        for (int i = 0, j = 1; i < menu.size(); i++, j++) {
+            menuScreen += j + ") " + menu.get(i) + "\n";
+        }
+
+
         //text fields
-        JTextField orderText = new JTextField(20);
-        JTextField priceText = new JTextField(5);
+        JTextArea info = new JTextArea (menuScreen);
+        JTextField orderText = new JTextField(2);
 
 
         //labels for the form
         JPanel myPanel = new JPanel();
-        myPanel.add(new JLabel("Food order:"));
+
+        myPanel.add(info);
+        myPanel.add(new JLabel("Item:"));
         myPanel.add(orderText);
-        myPanel.add(Box.createHorizontalStrut(15)); // a spacer
-        myPanel.add(new JLabel("Cost"));
-        myPanel.add(priceText);
 
 
 
@@ -289,26 +375,33 @@ public class quickFood {
         while (next == 0) {
             //sets text fields to empty for each loop of adding another item
             orderText.setText("");
-            priceText.setText("");
+
             int result = JOptionPane.showConfirmDialog(null, myPanel,
-                    "Please enter your food order and cost of item", JOptionPane.OK_CANCEL_OPTION);
+                    "Select the numbered item to order:", JOptionPane.OK_CANCEL_OPTION);
 
             //if the result of the option pane above is true (ie OK)
             if (result == JOptionPane.OK_OPTION) {
-                //creating variables from text fields
-                String item = orderText.getText();
-                String itemCost = priceText.getText();
-                try {
-                    // if user cost value cannot be converted to number
-                    //then add the item and item cost to the array
-                    Double.parseDouble(itemCost);
-                    orderList.add(item);
-                    orderList.add(itemCost);
 
-                } catch (NumberFormatException e) {
-                    //error message, and exit ask to try again
-                    //will not be added to the list of ordered items
-                    JOptionPane.showMessageDialog(null, "Item value can only be numerical, try again?");
+                //creating an index from the number input from user
+                String itemNum = orderText.getText();
+                int index = Integer.parseInt(itemNum);
+
+                if (index >= 1 && index <= 10) {
+
+                    //gets the string from the ArrayList eg: "Bacon Avo Feta @ R130"
+                    String itemString = menu.get(index - 1);
+                    //splits into 2 index array. [0] is the item and [1] is the cost
+                    String[] itemArray = itemString.split(" @ R");
+
+                    //adding the item and cost String to the orderList array
+                    orderList.add(itemArray[0]);
+                    orderList.add(itemArray[1]);
+
+
+                } else {
+                    //else the user did not enter a number between 1 and 10... error & exit
+                    String msg = " Unfortunately that is not a valid order, please try again :) ";
+                    notComplete(msg);
                 }
 
                 //creates an object that holds the values of the customized options
@@ -318,7 +411,8 @@ public class quickFood {
                         options, options[0]);
 
             } else {
-                break;  //if ok option not true (ie CANCEL) then break out of program/loop
+                //if ok option not true (ie CANCEL) then break out of program/loop
+                break;
             }
         }
         return orderList;
@@ -349,8 +443,8 @@ public class quickFood {
 
 
     //method that's called when user doesn't fill in text fields correctly and exits
-    public static void notComplete() {
-        JOptionPane.showMessageDialog(null, "*** Please make sure full information is given  and try again ***");
+    public static void notComplete(String msg) {
+        JOptionPane.showMessageDialog(null, "***" + msg + "***");
         System.exit(0);
     }
 
